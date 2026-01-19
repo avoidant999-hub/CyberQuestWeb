@@ -74,12 +74,20 @@ export class BootScene extends Phaser.Scene {
 
     /**
      * Loads external image assets from file system
+     * Uses relative paths from public folder
      */
     loadExternalAssets() {
-        this.load.image('bg-mainmenu', '/assets/images/backgrounds/bg-mainmenu.png');
-        this.load.image('bg-level1', '/assets/images/backgrounds/bg-level1.png');
-        this.load.image('bg-level2', '/assets/images/backgrounds/bg-level2.png');
-        this.load.image('chapter', '/assets/images/backgrounds/chapter.png');
+        // Fix: Use relative paths instead of absolute paths
+        this.load.image('bg-mainmenu', './assets/images/backgrounds/bg-mainmenu.png');
+        this.load.image('bg-level1', './assets/images/backgrounds/bg-level1.png');
+        this.load.image('bg-level2', './assets/images/backgrounds/bg-level2.png');
+        this.load.image('chapter', './assets/images/backgrounds/chapter.png');
+
+        // Add error handling for failed asset loads
+        this.load.on('loaderror', (file) => {
+            console.error(`[BootScene] Failed to load: ${file.key} from ${file.url}`);
+            console.warn(`[BootScene] Falling back to generated/solid color background for: ${file.key}`);
+        });
     }
 
     /**

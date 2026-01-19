@@ -2,7 +2,7 @@ import { GameState } from '../systems/GameState.js';
 
 export class CharacterSelectScene extends Phaser.Scene {
     constructor() {
-        super('CharacterSelectScene');
+        super('CharacterSelect');
     }
 
     create() {
@@ -136,9 +136,10 @@ export class CharacterSelectScene extends Phaser.Scene {
                     duration: 50,
                     yoyo: true,
                     onComplete: () => {
-                        // Jalankan fungsi select
-                        GameState.selectCharacter(charData.id);
-                        this.scene.start('GameScene'); 
+                        // Update player character
+                        GameState.setPlayer(charData.name, charData.id);
+                        console.log(`[CharacterSelectScene] Selected: ${charData.name}`);
+                        this.scene.start('LevelSelectScene'); 
                     }
                 });
             });

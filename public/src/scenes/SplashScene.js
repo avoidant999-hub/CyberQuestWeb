@@ -1,7 +1,10 @@
 import { UIManager } from "../systems/UIManager.js";
 
 export class SplashScene extends Phaser.Scene {
-    constructor() { super('SplashScene'); }
+    constructor() { 
+        super('SplashScene');
+        this.tweens = [];
+    }
 
     create() {
         const { width, height } = this.scale;
@@ -45,7 +48,7 @@ export class SplashScene extends Phaser.Scene {
         container.setAlpha(0); // Mulai transparan
 
         // Animasi Fade In -> Wait -> Fade Out
-        this.tweens.add({
+        const fadeInTween = this.tweens.add({
             targets: container,
             alpha: 1,
             y: height/2 - 30, // Sedikit gerak ke atas
@@ -53,7 +56,7 @@ export class SplashScene extends Phaser.Scene {
             ease: 'Power2.easeInOut',
             onComplete: () => {
                 // Scale animation saat display
-                this.tweens.add({
+                const scaleTween = this.tweens.add({
                     targets: logo,
                     scale: 1.3,
                     duration: 600,
@@ -62,7 +65,7 @@ export class SplashScene extends Phaser.Scene {
                 });
                 
                 this.time.delayedCall(1500, () => {
-                    this.tweens.add({
+                    const fadeOutTween = this.tweens.add({
                         targets: container,
                         alpha: 0,
                         duration: 1000,
@@ -83,9 +86,15 @@ export class SplashScene extends Phaser.Scene {
     }
 
     shutdown() {
-        // Clean up event listeners
-        if (this.scale) {
-            this.scale.off("resize");
+        // Clean up event listeners and tweens
+        try {
+            if (this.scale) {
+                this.scale.off("resize");
+            }
+            // Phaser automatically stops tweens on scene shutdown
+            console.log("[SplashScene] Cleanup complete");
+        } catch (error) {
+            console.warn("[SplashScene] Error during shutdown:", error);
         }
     }
 }

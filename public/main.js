@@ -65,16 +65,20 @@ const config = {
   callbacks: {
     preBoot: function(game) {
       console.log('🎮 CyberQuest Game - Mobile Optimized');
+      console.log('Version: 2.0');
     },
+    postBoot: function(game) {
+      console.log('✅ Game initialized successfully');
+    }
   },
 
   input: {
-  activePointers: 3,
-  smoothStep: false, // Ubah ke false agar tidak ada delay interpolasi
-  touch: {
-    capture: true
+    activePointers: 3,
+    smoothStep: false,
+    touch: {
+      capture: true
+    }
   }
-}
 };
 
 /**
@@ -94,4 +98,14 @@ const game = new Phaser.Game(config);
  * Attach to window for cross-scene access
  */
 window.gameInstance = game;
+
+// Add global error handling for better debugging
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+});
+
+// Log when game boots
+game.events.on('boot', () => {
+  console.log('[Main] Phaser game booted successfully');
+});
 
