@@ -61,15 +61,16 @@ export class Level1 extends Phaser.Scene {
   preload() {
     // Pastikan path/lokasi filenya benar sesuai folder project Anda
     // Contoh: folder 'public/assets/bg-level1.png'
-    this.load.image("bg-level1", "assets/bg-level1.png"); 
+    this.load.image("bg-level1", "assets/bg-level1.png");
   }
-  
+
   // Di dalam Level1.js
   createBackground(width, height) {
     // 1. Cek apakah texture/gambar "bg-level1" sudah dimuat
     if (this.textures.exists("bg-level1")) {
       // Tampilkan gambar dan paksa ukurannya memenuhi layar (seperti Level 3)
-      this.add.image(width / 2, height / 2, "bg-level1")
+      this.add
+        .image(width / 2, height / 2, "bg-level1")
         .setDisplaySize(width, height);
     } else {
       // Fallback: Jika gambar tidak ada, gunakan Gradient
@@ -79,7 +80,7 @@ export class Level1 extends Phaser.Scene {
         THEME.colors.bgDark,
         0x1e293b,
         0x1e293b,
-        1
+        1,
       );
       bg.fillRect(0, 0, width, height);
     }
@@ -98,7 +99,7 @@ export class Level1 extends Phaser.Scene {
       0xffffff,
       0,
       0xffffff,
-      0.03
+      0.03,
     );
   }
 
@@ -111,18 +112,9 @@ export class Level1 extends Phaser.Scene {
     headerBg.lineStyle(1, 0x334155);
     headerBg.lineBetween(0, headerH, width, headerH);
 
-    // --- TOMBOL KELUAR (PERBAIKAN AREA KLIK) ---
-    const btnExit = this.add.container(90, headerH / 2);
-    // Pastikan Depth tinggi agar tidak tertutup layer lain
-    btnExit.setDepth(100);
-
-    const exitBg = this.add.graphics();
-    const drawExitBtn = (color) => {
-      exitBg.clear();
-      exitBg.fillStyle(color, 1);
-      exitBg.fillRoundedRect(-60, -20, 120, 40, 10);
-    };
-    drawExitBtn(THEME.colors.danger);
+    // --- TOMBOL KELUAR ---
+    // 1. Buat Container & Teks
+    const btnExit = this.add.container(90, headerH / 2).setDepth(100);
 
     const exitIcon = this.add
       .text(0, 0, "⬅ KELUAR", {
@@ -133,22 +125,51 @@ export class Level1 extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    // 2. Hitung Ukuran Background Dinamis
+    const bgWidth = exitIcon.width + 40; // Padding horizontal
+    const bgHeight = exitIcon.height + 20; // Padding vertikal
+
+    // 3. Buat Graphics Object
+    const exitBg = this.add.graphics();
+
+    // 4. Fungsi Helper untuk Menggambar (Solusi Pengganti setTint)
+    const drawExitBg = (color) => {
+      exitBg.clear(); // Hapus gambar lama
+      exitBg.fillStyle(color, 1);
+      // Menggambar kotak dengan posisi centered relative terhadap container
+      exitBg.fillRoundedRect(
+        -bgWidth / 2,
+        -bgHeight / 2,
+        bgWidth,
+        bgHeight,
+        10,
+      );
+    };
+
+    // Gambar warna awal
+    drawExitBg(THEME.colors.danger);
+
+    // Masukkan ke container (Bg dulu, baru Icon)
     btnExit.add([exitBg, exitIcon]);
 
-    // PERBAIKAN UTAMA TOMBOL KELUAR:
-    // Gunakan Rectangle geometry yang eksplisit dan presisi
-    const hitArea = new Phaser.Geom.Rectangle(-60, -20, 120, 40);
+    // 5. Interaktifitas
+    const hitArea = new Phaser.Geom.Rectangle(
+      -bgWidth / 2,
+      -bgHeight / 2,
+      bgWidth,
+      bgHeight,
+    );
     btnExit.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
     btnExit.input.cursor = "pointer";
 
     btnExit.on("pointerover", () => {
       this.tweens.add({ targets: btnExit, scale: 1.05, duration: 100 });
-      drawExitBtn(0xf87171);
+      drawExitBg(0xf87171); // Gambar ulang dengan warna lebih terang
     });
 
     btnExit.on("pointerout", () => {
       this.tweens.add({ targets: btnExit, scale: 1, duration: 100 });
-      drawExitBtn(THEME.colors.danger);
+      drawExitBg(THEME.colors.danger); // Gambar ulang dengan warna asli
     });
 
     btnExit.on("pointerdown", () => {
@@ -757,7 +778,7 @@ export class Level1 extends Phaser.Scene {
     const btnMenu = this.createActionButton(
       -130,
       130,
-      "MENU UTAMA",
+      "PILIH MISI",
       0x475569,
       () => {
         this.input.enabled = true;

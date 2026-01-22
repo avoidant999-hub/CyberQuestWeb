@@ -1,137 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <title>CyberQuest: Petualangan Cerdas</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CyberQuest: Petualangan Cerdas</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
+      rel="stylesheet"/>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap"
-    rel="stylesheet" />
+    <!-- Bootstrap 5 CSS (Latest Stable) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"/>
 
-  <!-- Bootstrap 5 CSS (Latest Stable) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Custom Styles (Must come AFTER Bootstrap) -->
+    <link rel="stylesheet" href="styles/main.css" />
 
-  <!-- Custom Styles (Must come AFTER Bootstrap) -->
-  <link rel="stylesheet" href="styles/main.css" />
+    <!-- Phaser 3.60 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
 
-  <!-- Phaser 3.60 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        /* Menghilangkan scroll yang tidak diinginkan di HP */
+        background-color: #000;
+      }
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Menghilangkan scroll yang tidak diinginkan di HP */
-    background-color: #000;
-}
+      #game-container {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <link rel="icon" href="icon.png">
+  </head>
 
-#game-container {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-</style>
-</head>
+  <body>
+    <!-- Main Container with Bootstrap Grid -->
+    <div id="app-layout" class="app-layout">
+      <!-- Decorative Top Border -->
+      <div class="top-border"></div>
 
-<body>
-  <!-- Main Container with Bootstrap Grid -->
-  <div id="app-layout" class="app-layout">
-    <!-- Decorative Top Border -->
-    <div class="top-border"></div>
+      <!-- Noise/Grain Background -->
+      <div class="noise-overlay"></div>
 
-    <!-- Noise/Grain Background -->
-    <div class="noise-overlay"></div>
-
-    <!-- Bootstrap Container for Responsive Layout -->
-    <div class="container-fluid game-layout-container">
-      <div class="row w-100 h-100 align-items-center justify-content-center">
-        <!-- Game Viewport Column -->
-        <div class="col-12 col-lg-10 col-xl-9 game-viewport">
-          <!-- Game Container (Phaser Parent) -->
-          <div id="game-container" style="position: relative;">
-            <input type="text" id="hidden-input"
-              style="position: absolute; top: -100px; left: -100px; width: 1px; height: 1px; opacity: 0;"
-              autocomplete="off">
+      <!-- Bootstrap Container for Responsive Layout -->
+      <div class="container-fluid game-layout-container">
+        <div class="row w-100 h-100 align-items-center justify-content-center">
+          <!-- Game Viewport Column -->
+          <div class="col-12 col-lg-10 col-xl-9 game-viewport">
+            <!-- Game Container (Phaser Parent) -->
+            <div id="game-container" style="position: relative">
+              <input
+                type="text"
+                id="hidden-input"
+                style="
+                  position: absolute;
+                  top: -100px;
+                  left: -100px;
+                  width: 1px;
+                  height: 1px;
+                  opacity: 0;
+                "
+                autocomplete="off"
+              />
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Footer Info (Visible on Desktop only) -->
+      <div id="app-footer" class="app-footer">
+        <span>CyberQuest v2.0 • Kelompok 4 • Literasi Digital</span>
+      </div>
     </div>
 
-    <!-- Footer Info (Visible on Desktop only) -->
-    <div id="app-footer" class="app-footer">
-      <span>CyberQuest v2.0 • Kelompok 4 • Literasi Digital</span>
+    <!-- Orientation Warning Overlay -->
+    <div id="orientation-warning" class="orientation-warning hidden">
+      <div class="orientation-content">
+        <div class="orientation-icon">📱</div>
+        <h2 class="orientation-title">Mode Landscape Diperlukan</h2>
+        <p class="orientation-text">
+          Harap putar perangkat Anda agar pengalaman bermain maksimal.
+        </p>
+      </div>
     </div>
-  </div>
 
-  <!-- Orientation Warning Overlay -->
-  <div id="orientation-warning" class="orientation-warning hidden">
-    <div class="orientation-content">
-      <div class="orientation-icon">📱</div>
-      <h2 class="orientation-title">Mode Landscape Diperlukan</h2>
-      <p class="orientation-text">
-        Harap putar perangkat Anda agar pengalaman bermain maksimal.
-      </p>
-    </div>
-  </div>
+    <!-- Game Module (Phaser & Game Logic) -->
+    <script type="module" src="main.js"></script>
+    <script type="module" src="src/firebase-init.js"></script>
 
-  <!-- Game Module (Phaser & Game Logic) -->
-  <script type="module" src="main.js"></script>
-  <script type="module" src="src/firebase-init.js"></script>
+    <!-- Layout & Orientation Manager (Inline for early execution) -->
+    <script>
+      // Orientation Detection & Landscape Enforcement
+      (function () {
+        const orientationWarning = document.getElementById(
+          "orientation-warning",
+        );
+        const gameContainer = document.getElementById("game-container");
+        const appLayout = document.getElementById("app-layout");
 
-  <!-- Layout & Orientation Manager (Inline for early execution) -->
-  <script>
-    // Orientation Detection & Landscape Enforcement
-    (function () {
-      const orientationWarning = document.getElementById('orientation-warning');
-      const gameContainer = document.getElementById('game-container');
-      const appLayout = document.getElementById('app-layout');
+        function checkOrientation() {
+          const isMobile = window.innerWidth < 768;
+          const isPortrait = window.innerHeight > window.innerWidth;
+          const shouldHide = isMobile && isPortrait;
 
-      function checkOrientation() {
-        const isMobile = window.innerWidth < 768;
-        const isPortrait = window.innerHeight > window.innerWidth;
-        const shouldHide = isMobile && isPortrait;
-
-        if (shouldHide) {
-          orientationWarning.classList.remove('hidden');
-          appLayout.style.display = 'none';
-        } else {
-          orientationWarning.classList.add('hidden');
-          appLayout.style.display = 'flex';
+          if (shouldHide) {
+            orientationWarning.classList.remove("hidden");
+            appLayout.style.display = "none";
+          } else {
+            orientationWarning.classList.add("hidden");
+            appLayout.style.display = "flex";
+          }
         }
-      }
 
-      // Run on load and resize
-      window.addEventListener('load', checkOrientation);
-      window.addEventListener('orientationchange', checkOrientation);
-      window.addEventListener('resize', () => {
-        // Debounce resize to avoid too many recalculations
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(checkOrientation, 100);
-      });
+        // Run on load and resize
+        window.addEventListener("load", checkOrientation);
+        window.addEventListener("orientationchange", checkOrientation);
+        window.addEventListener("resize", () => {
+          // Debounce resize to avoid too many recalculations
+          clearTimeout(window.resizeTimer);
+          window.resizeTimer = setTimeout(checkOrientation, 100);
+        });
 
-      // Initial check
-      checkOrientation();
-    })();
-  </script>
+        // Initial check
+        checkOrientation();
+      })();
+    </script>
 
-  <!-- Validation & Debug Helpers (Optional) -->
-  <!-- <script src="validation.js"></script> -->
-</body>
-
+    <!-- Validation & Debug Helpers (Optional) -->
+    <!-- <script src="validation.js"></script> -->
+  </body>
 </html>
