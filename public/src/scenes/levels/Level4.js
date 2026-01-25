@@ -450,44 +450,58 @@ export class Level4 extends Phaser.Scene {
 
     showSummary() {
         // Hapus UI sebelumnya
-        this.studioContainer.destroy();
+        if (this.studioContainer) this.studioContainer.destroy();
+
         const { width, height } = this.scale;
-
-        // Background Menang
-        const bg = this.add.graphics().setDepth(3000);
-        bg.fillGradientStyle(0x1e1b4b, 0x1e1b4b, 0x312e81, 0x312e81, 1);
-        bg.fillRect(0, 0, width, height);
-
         const container = this.add.container(width / 2, height / 2).setDepth(3001);
 
-        // Konten Summary
-        const trophy = this.add.text(0, -100, "🏆", { fontSize: "80px" }).setOrigin(0.5);
-        const title = this.add.text(0, -20, "MISI SELESAI!", {
-            fontFamily: THEME.fonts.header, fontSize: "36px", color: THEME.colors.warning, fontStyle: "900",
-            stroke: "#000", strokeThickness: 4
+        // --- Visual Objek ---
+        const trophy = this.add.text(0, -120, "🏆", { fontSize: "80px" }).setOrigin(0.5);
+
+        const title = this.add.text(0, -30, "MISI SELESAI!", {
+            fontFamily: THEME.fonts.header, fontSize: "32px", fontStyle: "900", color: THEME.colors.warning
         }).setOrigin(0.5);
 
-        const sub = this.add.text(0, 40, "Kamu telah menjadi Warga Digital yang Bijak!", {
-            fontFamily: "Inter", fontSize: "16px", color: "#fff"
+        const sub = this.add.text(0, 20, "Kamu telah menyebarkan empati digital.", {
+            fontFamily: THEME.fonts.body, fontSize: "16px", color: "#fff"
         }).setOrigin(0.5);
 
-        // Tombol Menu
-        const btn = this.add.container(0, 120);
-        const bBg = this.add.graphics().fillStyle(THEME.colors.active, 1).fillRoundedRect(-100, -25, 200, 50, 25);
-        const bTxt = this.add.text(0, 0, "KEMBALI KE MENU", {
-            fontFamily: THEME.fonts.header, fontSize: "14px", fontStyle: "bold", color: "#000"
+        // Hitung skor
+        const totalScore = Object.values(GameState.scores).reduce((total, score) => {
+    return total + (typeof score === 'number' ? score : 0);
+}, 0);
+
+        const scoreTxt = this.add.text(0, 75, `Total Skor: ${totalScore}`, {
+            fontFamily: "Inter", fontSize: "24px", color: THEME.colors.active, fontStyle: "bold"
         }).setOrigin(0.5);
 
-        btn.add([bBg, bTxt])
-            .setInteractive(new Phaser.Geom.Rectangle(-100, -25, 200, 50), Phaser.Geom.Rectangle.Contains)
+        // --- Tombol Simpan ---
+        const btnSave = this.add.container(-110, 160);
+        const sBg = this.add.graphics().fillStyle(THEME.colors.success, 1).fillRoundedRect(-90, -25, 180, 50, 25);
+        const sTxt = this.add.text(0, 0, "SIMPAN SKOR", {
+            fontFamily: THEME.fonts.header, fontSize: "14px", fontStyle: "bold", color: "#fff"
+        }).setOrigin(0.5);
+        btnSave.add([sBg, sTxt]);
+        btnSave.setInteractive(new Phaser.Geom.Rectangle(-90, -25, 180, 50), Phaser.Geom.Rectangle.Contains)
+            .on('pointerdown', () => this.handleSaveScore(totalScore));
+
+        // --- Tombol Menu ---
+        const btnMenu = this.add.container(110, 160);
+        const mBg = this.add.graphics().fillStyle(0x475569, 1).fillRoundedRect(-90, -25, 180, 50, 25);
+        const mTxt = this.add.text(0, 0, "MENU UTAMA", {
+            fontFamily: THEME.fonts.header, fontSize: "14px", fontStyle: "bold", color: "#fff"
+        }).setOrigin(0.5);
+        btnMenu.add([mBg, mTxt]);
+        btnMenu.setInteractive(new Phaser.Geom.Rectangle(-90, -25, 180, 50), Phaser.Geom.Rectangle.Contains)
             .on('pointerdown', () => this.scene.start("MenuScene"));
 
-        container.add([trophy, title, sub, btn]);
+        container.add([trophy, title, sub, scoreTxt, btnSave, btnMenu]);
 
-        // Confetti
+        // Panggil confetti milik class ini
         this.createConfetti(width, height);
     }
 
+    // --- FIX: Masukkan fungsi ke dalam class (Hapus tanda ; dan tambahkan kurung kurawal) ---
     createConfetti(w, h) {
         for (let i = 0; i < 50; i++) {
             const x = Phaser.Math.Between(0, w);
@@ -496,10 +510,125 @@ export class Level4 extends Phaser.Scene {
             const rect = this.add.rectangle(x, y, 8, 8, color).setDepth(2999);
 
             this.tweens.add({
-                targets: rect, y: h + 100, angle: 360,
+                targets: rect,
+                y: h + 100,
+                angle: 360,
                 duration: Phaser.Math.Between(2000, 4000),
-                ease: "Sine.easeInOut"
+                ease: "Sine.easeInOut",
+                onComplete: () => rect.destroy() // Bersihkan memori
             });
         }
     }
-} 
+
+    showToast(message) {
+        const { width, height } = this.scale;
+        const toast = this.add.container(width / 2, height - 100).setDepth(5000);
+
+        const bg = this.add.graphics().fillStyle(0x000000, 0.8).fillRoundedRect(-100, -20, 200, 40, 20);
+        const txt = this.add.text(0, 0, message, {
+            fontFamily: THEME.fonts.body, fontSize: "14px", color: THEME.colors.success, fontStyle: "bold"
+        }).setOrigin(0.5);
+
+        toast.add([bg, txt]);
+        toast.setAlpha(0);
+
+        this.tweens.add({
+            targets: toast,
+            alpha: 1,
+            y: height - 150,
+            duration: 500,
+            yoyo: true,
+            hold: 1000,
+            onComplete: () => toast.destroy()
+        });
+    }
+
+    handleSaveScore(score) {
+        const { width, height } = this.scale;
+
+        // 1. Overlay & Card (Tetap sama)
+        const modalOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8)
+            .setInteractive().setDepth(4000);
+
+        const card = this.add.container(width / 2, height / 2).setDepth(4001);
+        const cardBg = this.add.graphics();
+        cardBg.fillStyle(THEME.colors.panel, 1).lineStyle(2, THEME.colors.active, 1);
+        cardBg.fillRoundedRect(-160, -110, 320, 240, 20);
+        cardBg.strokeRoundedRect(-160, -110, 320, 240, 20);
+
+        const title = this.add.text(0, -75, "DAFTARKAN AGENT", {
+            fontFamily: THEME.fonts.header, fontSize: "20px", color: THEME.colors.active, fontStyle: "900"
+        }).setOrigin(0.5);
+
+        const inputX = (width / 2) - 110;
+        const inputY = (height / 2) - 80;
+
+        const inputElement = this.add.dom(inputX, inputY).createFromHTML(`
+    <input type="text" id="nameInput" placeholder="Ketik namamu..." 
+    style="
+        width: 220px; 
+        height: 45px; 
+        padding: 0 15px; 
+        font-size: 16px; 
+        border: 2px solid #334155; 
+        border-radius: 10px; 
+        background: #0f172a; 
+        color: #ffffff; 
+        text-align: center; 
+        outline: none;
+        box-sizing: border-box;
+        display: block;
+    ">
+`);
+
+        // PENTING: Set Origin ke 0 (Pojok Kiri Atas) agar manual offset kita valid
+        inputElement.setOrigin(0);
+        inputElement.setDepth(4002);
+
+        // 3. Tombol Simpan (Tetap sama)
+        const btnSubmit = this.add.container(0, 80).setInteractive(new Phaser.Geom.Rectangle(-70, -22, 140, 45), Phaser.Geom.Rectangle.Contains);
+        const bSbg = this.add.graphics().fillStyle(THEME.colors.success, 1).fillRoundedRect(-70, -22, 140, 45, 12);
+        const bStxt = this.add.text(0, 0, "SIMPAN", { fontFamily: THEME.fonts.header, fontSize: "16px", fontStyle: "bold", color: "#fff" }).setOrigin(0.5);
+        btnSubmit.add([bSbg, bStxt]);
+
+        card.add([cardBg, title, btnSubmit]);
+
+        // 4. Logika Klik
+        btnSubmit.on('pointerdown', async () => {
+            const inputNode = document.getElementById('nameInput');
+            const playerName = inputNode ? inputNode.value.trim() : "";
+
+            if (!playerName) {
+                this.showToast("NAMA WAJIB DIISI!");
+                return;
+            }
+
+            btnSubmit.disableInteractive();
+            bStxt.setText("PROSES...");
+
+            try {
+                const module = await import("../../systems/LeaderboardSystem.js");
+                await module.LeaderboardSystem.saveScore(playerName, score);
+
+                card.destroy();
+                inputElement.destroy();
+                modalOverlay.destroy();
+                this.showToast("SKOR DISIMPAN!");
+
+                this.time.delayedCall(1000, () => this.scene.start('LeaderboardScene'));
+            } catch (err) {
+                bStxt.setText("ERROR!");
+                btnSubmit.setInteractive();
+            }
+        });
+
+        // Animasi Muncul
+        card.setScale(0);
+        this.tweens.add({
+            targets: card,
+            scale: 1,
+            duration: 400,
+            ease: 'Back.easeOut'
+        });
+    }
+}

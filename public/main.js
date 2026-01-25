@@ -26,6 +26,10 @@ const config = {
   type: Phaser.AUTO,
   parent: 'game-container', // Pastikan ini ada di luar blok scale
   backgroundColor: '#0f172a',
+  dom: {
+    createContainer: true,
+    parent: '#game-container'
+},
   
   scale: {
     mode: Phaser.Scale.ENVELOP, // Mengisi seluruh layar HP
