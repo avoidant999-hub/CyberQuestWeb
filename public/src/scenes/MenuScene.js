@@ -14,7 +14,7 @@ export class MenuScene extends Phaser.Scene {
     // Karena akan menghapus progress setiap kali user kembali ke menu.
     
     this.uiManager = new UIManager(this);
-    this.input.mouse.disableContextMenu();
+    // this.input.mouse.disableContextMenu();
     const { width, height } = this.scale;
 
     // 1. Background
